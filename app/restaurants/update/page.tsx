@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import CreateRestaurantPage from "./CreateRestaurantPage";
+import UpdatePageContent from "./UpdatePageContent";
 
 export default function Page() {
   return (
-    <Suspense fallback={<div className="min-h-[100vh] flex items-center justify-center">Loading 🍝</div>}>
-      <CreateRestaurantPage />
+    <Suspense fallback={<div>Loading...</div>}>
+      <UpdatePageContent />
     </Suspense>
   );
 }
