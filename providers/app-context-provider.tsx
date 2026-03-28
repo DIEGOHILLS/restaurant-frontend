@@ -15,6 +15,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 function resolveApiBaseUrl() {
   const configuredBaseUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
 
+
   if (!configuredBaseUrl) {
     return "/api";
   }
@@ -23,6 +24,7 @@ function resolveApiBaseUrl() {
     return configuredBaseUrl;
   }
 
+  
   if (
     configuredBaseUrl.startsWith("http://") ||
     configuredBaseUrl.startsWith("https://")
