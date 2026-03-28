@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useForm, FormProvider } from "react-hook-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAppContext } from "@/providers/app-context-provider";
@@ -88,7 +90,6 @@ export default function CreateRestaurantPage() {
       try {
         const restaurant = await apiService.getRestaurant(restaurantId);
 
-        // Update form with restaurant data
         methods.reset({
           name: restaurant.name,
           cuisineType: restaurant.cuisineType,
@@ -160,30 +161,24 @@ export default function CreateRestaurantPage() {
       setError(undefined);
 
       if (restaurantId) {
-        // Update existing restaurant
         await apiService.updateRestaurant(
           restaurantId,
           updateRestaurantRequest,
         );
         router.push("/");
       } else {
-        // Create new restaurant (fallback, though this shouldn't happen with your validation)
         await apiService.createRestaurant(updateRestaurantRequest);
         router.push("/");
       }
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        // This confirms it's an Axios error
         if (err.response?.status === 400) {
-          // Extract the JSON error body
           const errorData = err.response.data?.message;
           setError(errorData);
         } else {
-          // Handle other status codes
           setError(`API Error: ${err.response?.status}: ${err.response?.data}`);
         }
       } else {
-        // Handle non-Axios errors
         setError(String(err));
       }
     }
