@@ -31,8 +31,8 @@ export const oidcConfig = {
   loadUserInfo: true,
 
   onSigninCallback: () => {
-    window.history.replaceState({}, document.title, window.location.pathname);
-  },
+  // DO NOTHING (for now)
+},
 };
 
 export function AppAuthProvider({ children }: PropsWithChildren) {
