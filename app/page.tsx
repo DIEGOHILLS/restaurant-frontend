@@ -6,6 +6,7 @@ import Hero from "@/components/hero";
 import { useEffect, useState } from "react";
 import { RestaurantSearchParams, RestaurantSummary } from "@/domain/domain";
 import { useAppContext } from "@/providers/app-context-provider";
+import { useAuth } from "react-oidc-context";
 import {
   Pagination,
   PaginationContent,
@@ -18,6 +19,7 @@ import {
 
 export default function Home() {
   const { apiService } = useAppContext();
+  const auth = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [restaurants, setRestaurants] = useState<RestaurantSummary[]>([]);
@@ -46,22 +48,17 @@ export default function Home() {
         size: 8,
       };
 
-      console.log("Searching for Restaurants:", paginatedParams);
-
       if (!apiService?.searchRestaurants) {
         throw new Error("ApiService is not initialized");
       }
 
       const response = await apiService.searchRestaurants(paginatedParams);
 
-      console.log("Restaurant API response:", response);
-
       setTotalPages(response?.totalPages ?? undefined);
       setFirst(response?.first ?? true);
       setLast(response?.last ?? true);
       setRestaurants(response?.content ?? []);
-    } catch (error) {
-      console.error("Error fetching restaurants:", error);
+    } catch {
       setRestaurants([]);
       setTotalPages(undefined);
       setFirst(true);
@@ -115,12 +112,10 @@ export default function Home() {
       await searchRestaurants({}, 1);
     };
 
-    if (!apiService) {
-      return;
-    }
+    if (!apiService || auth.isLoading || !auth.isAuthenticated) return;
 
     doUseEffect();
-  }, [apiService]);
+  }, [apiService, auth.isLoading, auth.isAuthenticated]);
 
   return (
     <div>

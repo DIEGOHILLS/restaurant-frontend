@@ -15,16 +15,8 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 function resolveApiBaseUrl() {
   const configuredBaseUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
 
+  if (!configuredBaseUrl) return "/api";
 
-  if (!configuredBaseUrl) {
-    return "/api";
-  }
-
-  if (configuredBaseUrl === "/api") {
-    return configuredBaseUrl;
-  }
-
-  
   if (
     configuredBaseUrl.startsWith("http://") ||
     configuredBaseUrl.startsWith("https://")
@@ -33,8 +25,7 @@ function resolveApiBaseUrl() {
     return cleaned.endsWith("/api") ? cleaned : `${cleaned}/api`;
   }
 
-  const cleaned = configuredBaseUrl.replace(/^\/+|\/+$/g, "");
-  return `/${cleaned}`;
+  return configuredBaseUrl;
 }
 
 export function AppContextProvider({
@@ -47,18 +38,19 @@ export function AppContextProvider({
   const auth = useAuth();
 
   useEffect(() => {
+    if (auth.isLoading || !auth.isAuthenticated) return;
+
     try {
       const baseUrl = resolveApiBaseUrl();
       const axiosApiService = new AxiosApiService(baseUrl, auth);
 
       setApiService(axiosApiService);
       setIsInitialized(true);
-    } catch (error) {
-      console.error("Failed to initialize services:", error);
+    } catch {
       setApiService(null);
       setIsInitialized(false);
     }
-  }, [auth]);
+  }, [auth.isLoading, auth.isAuthenticated]);
 
   return (
     <AppContext.Provider value={{ apiService, isInitialized }}>
@@ -69,10 +61,6 @@ export function AppContextProvider({
 
 export const useAppContext = () => {
   const context = useContext(AppContext);
-
-  if (context === undefined) {
-    throw new Error("useAppContext must be used within an AppContextProvider");
-  }
-
+  if (!context) throw new Error("useAppContext must be used within AppContextProvider");
   return context;
 };
